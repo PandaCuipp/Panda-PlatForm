@@ -14,7 +14,6 @@ require('echarts/lib/component/legendScroll');
 import styles from './BrinsonList.less';
 
 var $ = require('jquery');
-//import exportExcel from '../../utils/exportExcel';
 var exportExcel = require('../../utils/exportExcel');
 var common = require('../../utils/common');
 
@@ -66,7 +65,6 @@ export default class BrinsonList extends Component {
 
   //绘制图表1
   displayChart1 = function(xAxisData, yAxisData) {
-    // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('chartId1'));
     // 绘制图表
     var option = {
@@ -126,7 +124,6 @@ export default class BrinsonList extends Component {
   };
 
   displayChart2 = (xAxisData, configData, stockcrossData) => {
-    // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('chartId2'));
 
     var option = {
@@ -234,7 +231,6 @@ export default class BrinsonList extends Component {
   };
 
   render() {
-    console.log('render');
     const { chart, loading } = this.props;
     const { indexData, exContribution, configData, stockcrossData, strategyInfo } = chart;
 
