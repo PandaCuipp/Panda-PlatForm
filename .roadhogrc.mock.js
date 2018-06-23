@@ -12,13 +12,28 @@ import { getFakeBrinson } from './mock/brinson';
 // 是否禁用代理
 const noProxy = process.env.NO_PROXY === 'true';
 
+const server1 = "http://192.168.250.12:30000";
+const server2 = "https://quant-dev.phfund.com.cn";
+
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
 const proxy = {
   //=============================正式项目========================================
 
+  //代理服务器：api1
+  'GET /api1/v1/(.*)': 'http://192.168.250.12:30000', //http://192.168.250.12:30000/performance/brinson
+
+  'POST /api1/(.*)': server1,
+  'GET /api1/(.*)': server1,
+
+  'POST /api2/(.*)': server2,
+  'GET /api2/(.*)': server2,
+
   //来源于service/api.js
   //'GET /api/v1/performance/brinson': getFakeBrinson.brinsonData,
-  'GET /api/v1/performance/brinson': 'http://192.168.250.12:30000/performance/brinson',
+  'GET /api/v1/performance/brinson': 'https://www.baidu.com',
+  
+  'GET /api2/v1/quant-policymanager/strategy-simple': getFakeBrinson.strategyInfo,
+
   //=====================以下是模板用例==================================
   // 支持值为 Object 和 Array
   'GET /api/currentUser': {

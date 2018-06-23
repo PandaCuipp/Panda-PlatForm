@@ -6,10 +6,14 @@ import request from '../utils/request';
 
 //获取Brinson归因明细
 export async function getBrinsonData(params) {
-
   console.log("api-getBrinsonData");
   console.log(params);
   return request(`/api/v1/performance/brinson?${stringify(params)}`);
+}
+
+//获取策略详情
+export async function getStrategyInfo(params) {
+  return request(`/api2/v1/quant-policymanager/strategy-simple?${stringify(params)}`);
 }
 
 //=====================以下是模板用例=========================

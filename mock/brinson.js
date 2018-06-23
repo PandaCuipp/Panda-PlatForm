@@ -227,9 +227,16 @@ const brinsonData = {
   ],
 };
 
+const strategyInfo = {
+  strategy_id: 'S0000000000000000000000000000382',
+  strategy_code: 'S0000162',
+  strategy_name: 'PE选股策略',
+  strategy_version: '1.1.1',
+};
 
 export const getFakeBrinson = {
   brinsonData,
+  strategyInfo,
 };
 
 export default {
