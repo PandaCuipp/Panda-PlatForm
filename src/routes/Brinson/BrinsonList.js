@@ -18,47 +18,144 @@ var $ = require('jquery');
 var exportExcel = require('../../utils/exportExcel');
 var common = require('../../utils/common');
 
-@connect(({ chart, loading }) => ({
-  chart,
-  loading: loading.effects['chart/fetch'],
+@connect(({ brinson, loading }) => ({
+  brinson,
+  loading: loading.effects['brinson/getBrinson'],
 }))
 export default class BrinsonList extends Component {
   state = {
     currentTabKey: '1',
+    columns: [],
+    tableData: [],
+    columns2: [],
+    tableData2: [],
+    strategyInfo: {},
   };
 
   componentDidMount() {
     console.log('componentDidMount');
-
-    this.props
-      .dispatch({
-        type: 'chart/fetch',
-      })
-      .then(() => {
-        const { indexData, exContribution, configData, stockcrossData } = this.props.chart;
-        this.displayChart1(indexData, exContribution);
-        this.displayChart2(indexData, configData, stockcrossData);
-      });
-
-    this.props
-      .dispatch({
-        type: 'chart/getStrategyInfo',
-      })
-      .then(() => { });
+    
+    const strategy_id = common.getParamFromURLOrCookie('strategy_id', true);
+    const index_code = common.getParamFromURLOrCookie('index_code', true);
+    const begin_date = common.getParamFromURLOrCookie('begin_date', true);
+    const end_date = common.getParamFromURLOrCookie('end_date', true);
 
     this.setState({
-      strategy_id: common.getParamFromURLOrCookie('strategy_id', true),
-      index_code: common.getParamFromURLOrCookie('index_code', true),
-      begin_date: common.getParamFromURLOrCookie('begin_date', true),
-      end_date: common.getParamFromURLOrCookie('end_date', true),
+      begin_date: begin_date,
+      end_date: end_date,
     });
+
+    this.props.dispatch({
+        type: 'brinson/getBrinson',
+        payload: { strategy_id, index_code, begin_date, end_date }
+    }).then(() => {
+      const { brinsonData } = this.props.brinson;
+
+      if (brinsonData == undefined || brinsonData.Error != undefined) {
+        return;
+      }
+      //解析接口返回的数据
+      const indexData = brinsonData.index; //行
+      const columnsData = brinsonData.columns; //列
+      const exContribution = []; //超额贡献
+      const configData = []; // 行业配置
+      const stockcrossData = []; //选股+交叉
+      //const dataData = brinsonData.data; //交叉数据
+
+      for (let i = 0; i < brinsonData.data.length; i++) {
+        for (let j = 0; j < brinsonData.columns.length; j++) {
+          if (brinsonData.columns[j] == '超额贡献') {
+            exContribution.push(brinsonData.data[i][j]);
+          }
+          if (brinsonData.columns[j] == '行业配置') {
+            configData.push(brinsonData.data[i][j]);
+          }
+          if (brinsonData.columns[j] == '选股+交叉') {
+            stockcrossData.push(brinsonData.data[i][j]);
+          }
+        }
+      }
+        //const { indexData, exContribution, configData, stockcrossData } = this.props.brinson;
+        this.displayChart1(indexData, exContribution);
+        this.displayChart2(indexData, configData, stockcrossData);
+
+        const tableData = []; //数据 brinson数据
+        for (let i = 0; i < indexData.length; i++) {
+          tableData.push({
+            index: i + 1,
+            x: indexData[i],
+            y: exContribution[i],
+          });
+        }
+
+        const columns = [
+          {
+            title: '项目',
+            dataIndex: 'x',
+            key: 'x',
+          },
+          {
+            title: '超额贡献',
+            dataIndex: 'y',
+            key: 'y',
+            //sorter: (a, b) => a.count - b.count,
+            className: styles.alignRight,
+          },
+        ];
+
+      const tableData2 = []; //行业配置和交叉股
+        for (let i = 0; i < indexData.length; i++) {
+          tableData2.push({
+            index: i + 1,
+            x: indexData[i],
+            y: configData[i],
+            z: stockcrossData[i],
+          });
+        }
+        const columns2 = [
+          {
+            title: '项目',
+            dataIndex: 'x',
+            key: 'x',
+          },
+          {
+            title: '行业配置',
+            dataIndex: 'y',
+            key: 'y',
+            //sorter: (a, b) => a.count - b.count,
+            className: styles.alignRight,
+          },
+          {
+            title: '选股+交叉',
+            dataIndex: 'z',
+            key: 'z',
+            //sorter: (a, b) => a.count - b.count,
+            className: styles.alignRight,
+          },
+        ];
+
+        this.setState({
+          columns: columns,
+          tableData: tableData,
+          columns2: columns2,
+          tableData2: tableData2,
+        });
+        //then end
+      });
+
+    this.props.dispatch({
+        type: 'brinson/getStrategyInfo',
+    }).then(() => {
+      this.setState({ strategyInfo: this.props.brinson.strategyInfo})
+    });
+    
   }
 
   componentWillUnmount() {
     console.log('componentWillUnmount');
     const { dispatch } = this.props;
     dispatch({
-      type: 'chart/clear',
+      type: 'brinson/clear',
     });
   }
 
@@ -223,72 +320,18 @@ export default class BrinsonList extends Component {
 
   //下载
   downloadExcel = (id, excelName) => {
-    var tableInnerHtml = $('#' + id)
-      .find('table')
-      .html();
-    exportExcel.exprotTableHtmlExcel(tableInnerHtml, excelName);
+    var tableInnerHtml = $('#' + id).find('table').html();
+    if (tableInnerHtml) {
+      exportExcel.exprotTableHtmlExcel(tableInnerHtml, excelName);
+    }
   };
 
   render() {
     console.log('render');
-    const { chart, loading } = this.props;
-    const { indexData, exContribution, configData, stockcrossData, strategyInfo } = chart;
-
-    const brinsonData = []; //数据 brinson数据
-    for (let i = 0; i < indexData.length; i++) {
-      brinsonData.push({
-        index: i + 1,
-        x: indexData[i],
-        y: exContribution[i],
-      });
-    }
-
-    const columns = [
-      {
-        title: '项目',
-        dataIndex: 'x',
-        key: 'x',
-      },
-      {
-        title: '超额贡献',
-        dataIndex: 'y',
-        key: 'y',
-        //sorter: (a, b) => a.count - b.count,
-        className: styles.alignRight,
-      },
-    ];
-
-    const brinsonData2 = []; //行业配置和交叉股
-    for (let i = 0; i < indexData.length; i++) {
-      brinsonData2.push({
-        index: i + 1,
-        x: indexData[i],
-        y: configData[i],
-        z: stockcrossData[i],
-      });
-    }
-    const columns2 = [
-      {
-        title: '项目',
-        dataIndex: 'x',
-        key: 'x',
-      },
-      {
-        title: '行业配置',
-        dataIndex: 'y',
-        key: 'y',
-        //sorter: (a, b) => a.count - b.count,
-        className: styles.alignRight,
-      },
-      {
-        title: '选股+交叉',
-        dataIndex: 'z',
-        key: 'z',
-        //sorter: (a, b) => a.count - b.count,
-        className: styles.alignRight,
-      },
-    ];
-
+    
+    const { brinson, loading } = this.props;
+    const { columns, tableData, columns2, tableData2, strategyInfo } = this.state;
+    
     return (
       <Fragment>
         <NavigationBar currentKey={this.state.currentTabKey} />
@@ -365,7 +408,7 @@ export default class BrinsonList extends Component {
             rowKey={record => record.index}
             size="small"
             columns={columns}
-            dataSource={brinsonData}
+            dataSource={tableData}
             pagination={{
               style: { marginBottom: 0 },
               pageSize: 100,
@@ -384,7 +427,7 @@ export default class BrinsonList extends Component {
             rowKey={record => record.index}
             size="small"
             columns={columns2}
-            dataSource={brinsonData2}
+            dataSource={tableData2}
             pagination={{
               style: { marginBottom: 0 },
               pageSize: 100,

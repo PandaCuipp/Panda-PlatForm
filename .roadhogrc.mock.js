@@ -7,11 +7,19 @@ import { getProfileAdvancedData } from './mock/profile';
 import { getNotices } from './mock/notices';
 import { format, delay } from 'roadhog-api-doc';
 
+import { getFakeBrinson } from './mock/brinson';
+
 // 是否禁用代理
 const noProxy = process.env.NO_PROXY === 'true';
 
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
 const proxy = {
+  //=============================正式项目========================================
+
+  //来源于service/api.js
+  //'GET /api/v1/performance/brinson': getFakeBrinson.brinsonData,
+  'GET /api/v1/performance/brinson': 'http://192.168.250.12:30000/performance/brinson',
+  //=====================以下是模板用例==================================
   // 支持值为 Object 和 Array
   'GET /api/currentUser': {
     $desc: '获取当前用户接口',

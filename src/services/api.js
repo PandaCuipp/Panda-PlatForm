@@ -1,6 +1,19 @@
 import { stringify } from 'qs';
 import request from '../utils/request';
 
+
+//========================请求Brinson模块数据=============================
+
+//获取Brinson归因明细
+export async function getBrinsonData(params) {
+
+  console.log("api-getBrinsonData");
+  console.log(params);
+  return request(`/api/v1/performance/brinson?${stringify(params)}`);
+}
+
+//=====================以下是模板用例=========================
+
 export async function queryProjectNotice() {
   return request('/api/project/notice');
 }
@@ -61,6 +74,8 @@ export async function queryFakeList(params) {
 }
 
 export async function fakeAccountLogin(params) {
+  console.log("fakeAccountLogin:params");
+  console.log(params);
   return request('/api/login/account', {
     method: 'POST',
     body: params,
@@ -77,3 +92,5 @@ export async function fakeRegister(params) {
 export async function queryNotices() {
   return request('/api/notices');
 }
+
+
