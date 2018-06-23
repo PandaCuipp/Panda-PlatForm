@@ -25,8 +25,8 @@ const proxy = {
   'POST /api1/(.*)': server1,
   'GET /api1/(.*)': server1,
 
-  'POST /api2/(.*)': server2,
-  'GET /api2/(.*)': server2,
+  //'POST /api2/(.*)': server2,
+  //'GET /api2/(.*)': server2,
 
   //来源于service/api.js
   //'GET /api/v1/performance/brinson': getFakeBrinson.brinsonData,
