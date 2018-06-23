@@ -25,8 +25,6 @@ var common = require('../../utils/common');
 export default class BrinsonList extends Component {
   state = {
     currentTabKey: '1',
-    isShowTable1: false,
-    isShowTable2: false,
   };
 
   componentDidMount() {
@@ -46,7 +44,7 @@ export default class BrinsonList extends Component {
       .dispatch({
         type: 'chart/getStrategyInfo',
       })
-      .then(() => {});
+      .then(() => { });
 
     this.setState({
       strategy_id: common.getParamFromURLOrCookie('strategy_id', true),
@@ -65,14 +63,14 @@ export default class BrinsonList extends Component {
   }
 
   //绘制图表1
-  displayChart1 = function(xAxisData, yAxisData) {
+  displayChart1 = function (xAxisData, yAxisData) {
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('chartId1'));
     // 绘制图表
     var option = {
       tooltip: {
         trigger: 'axis',
-        formatter: function(params) {
+        formatter: function (params) {
           for (var i = 0; i < params.length; i++) {
             return (
               params[i].name +
@@ -167,7 +165,7 @@ export default class BrinsonList extends Component {
             color: '#108ee9',
           },
           data: configData,
-          formatter: function(params) {
+          formatter: function (params) {
             for (var i = 0; i < params.length; i++) {
               return (
                 params[i].name +
@@ -187,7 +185,7 @@ export default class BrinsonList extends Component {
             color: '#C0504D',
           },
           data: stockcrossData,
-          formatter: function(params) {
+          formatter: function (params) {
             for (var i = 0; i < params.length; i++) {
               return (
                 params[i].name +
@@ -213,9 +211,7 @@ export default class BrinsonList extends Component {
       let anchorElement = document.getElementById(anchorName);
       // 如果对应id的锚点存在，就跳转到锚点
       if (anchorElement) {
-        $('#' + anchorName)
-          .closest('.hide')
-          .removeClass('hide');
+        $('#' + anchorName).closest('.hide').removeClass('hide');
         //并转跳
         anchorElement.scrollIntoView({
           block: 'start',
@@ -361,8 +357,7 @@ export default class BrinsonList extends Component {
         </Card>
 
         <Card
-          className={this.state.isShowTable1 ? '' : 'hide'}
-          loading={loading}
+          className="hide" loading={loading}
           bordered={false}
           style={{ marginTop: 24, textAlign: 'center' }}
         >
@@ -380,7 +375,7 @@ export default class BrinsonList extends Component {
         </Card>
 
         <Card
-          className={this.state.isShowTable2 ? '' : 'hide'}
+          className="hide"
           loading={loading}
           bordered={false}
           style={{ marginTop: 24, textAlign: 'center' }}
